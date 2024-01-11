@@ -5,6 +5,29 @@ import { Typography, Tabs, Tab, Box } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useDispatch, useSelector } from "react-redux";
 import { setItems } from "../../state";
+import { useQuery, gql } from "@apollo/client";
+
+const GET_ITEMS = gql`
+  query GetItems {
+    items {
+      data {
+        attributes {
+          name
+          price
+          shortDescription
+          longDescription
+          image {
+            data {
+              attributes {
+                formats # Querying the whole JSON object
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
 
 const ProductList = () => {
   const dispatch = useDispatch();
@@ -12,22 +35,23 @@ const ProductList = () => {
   const items = useSelector((state) => state.cart.items);
   const breakPoint = useMediaQuery("(min-width:600px)");
 
+  const { loading, error, data } = useQuery(GET_ITEMS);
   //change for tabs
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
-  async function getItems() {
-    const items = await fetch(
-      "http://localhost:1337/api/items?populate=image",
-      { method: "GET" }
-    );
-    const itemsJson = await items.json();
-    dispatch(setItems(itemsJson.data));
-  }
+  // async function getItems() {
+  //   const items = await fetch(
+  //     "http://localhost:1337/api/items?populate=image",
+  //     { method: "GET" }
+  //   );
+  //   const itemsJson = await items.json();
+  //   dispatch(setItems(itemsJson.data));
+  // }
 
   useEffect(() => {
-    getItems();
+    // getItems();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const topRatedItems = items.filter(
